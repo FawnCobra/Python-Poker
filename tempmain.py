@@ -20,7 +20,7 @@ class user:
 
 # shuffles the deck of cards
 # ¯\_( ツ )_/¯ idk what else to say
-def shuffle(deck):
+def shuffle(deck:list[str]):
     for i in range(len(deck)-1, 0, -1):
         j = random.randint(0, i + 1)
         deck[i], deck[j] = deck[j], deck[i]
@@ -39,7 +39,7 @@ def newtable():
     return playerlist
 
 # deals any specified amount of cards to the player from the top of the deck and removes it
-def card_deal(player, cardamnt, deck):
+def card_deal(player:user, cardamnt:int, deck:list[str]):
     temp = deck[0:cardamnt]
     del deck[0:cardamnt]
     player.cards += temp
@@ -47,25 +47,25 @@ def card_deal(player, cardamnt, deck):
     return deck, player
 
 # promts the player to bet
-def add_bet(playerhands, player):
-    print(f"|current highest bet is {get_highest_bet(playerhands)}|")
-    betamnt = int(input(f"{player} how much would you like to bet? "))
+def add_bet(playerlist: list[user], player:user):
+    print(f"|current highest bet is {get_highest_bet(playerlist)}|")
+    betamount = int(input(f"{player.name} how much would you like to bet? "))
     # keeps person in loop till bet ammount is both higher than the minumum bet and lower than their balance
-    while (betamnt < config.minbet) or (betamnt >= (playerhands[player]["balance"] + 1)):
+    while (betamount < config.minbet) or (betamount >= (player.balance + 1)):
 
         # checks if bet is lower than min bet
-        if betamnt < config.minbet:
+        if betamount < config.minbet:
             print("bet needs a min of 10")
-            betamnt = int(input(f"{player} how much would you like to bet? "))
+            betamount = int(input(f"{player.name} how much would you like to bet? "))
         # checks if bet is higher than balance
-        if betamnt >= (playerhands[player]["balance"] + 1):
+        if betamount >= (player.balance + 1):
             print("bet needs to be less than your bal")
-            betamnt = int(input(f"{player} how much would you like to bet? "))
+            betamount = int(input(f"{player.name} how much would you like to bet? "))
     
     # when conditons are met the balance and bet will be adjusted accordingly
-    playerhands[player]["bet"] = playerhands[player]["bet"] + betamnt
-    playerhands[player]["balance"] = playerhands[player]["balance"] - betamnt
-    return playerhands
+    player.bet += betamount
+    player.balance -= betamount
+    return playerlist
 
 # returns a int of the current highest bet
 def get_highest_bet(playerlist: list[user]):
@@ -84,4 +84,4 @@ if __name__ == "__main__":
     
         # players turn to add bets
     for i in range(len(playerlist)):
-        playerhands = add_bet(playerlist[i])
+        playerlist = add_bet(playerlist, playerlist[i])
