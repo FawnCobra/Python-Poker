@@ -73,7 +73,6 @@ def get_highest_bet(playerlist: list[user]):
     for i in range(len(playerlist)):
         if playerlist[i].bet >= highestbet:
             highestbet = playerlist[i].bet
-            print(highestbet)
     return highestbet
 
 
@@ -85,4 +84,4 @@ if __name__ == "__main__":
     
         # players turn to add bets
     for i in range(len(playerlist)):
-        playerhands = add_bet(playerhands, player)
+        playerhands = add_bet(playerlist[i])
