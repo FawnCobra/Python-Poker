@@ -38,11 +38,12 @@ def newtable():
         playerlist.append(user(f'player{x}', [], 0, 50, 0))
     return playerlist
 
-# deals any specified amount of cards to the player and removes it from the deck
+# deals any specified amount of cards to the player from the top of the deck and removes it
 def card_deal(player, cardamnt, deck):
     temp = deck[0:cardamnt]
     del deck[0:cardamnt]
     player.cards += temp
+    # returns the new deck of cards since modified, returns the player object with new cards
     return deck, player
 
 
