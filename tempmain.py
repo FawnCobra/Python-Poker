@@ -75,6 +75,42 @@ def get_highest_bet(playerlist: list[user]):
             highestbet = playerlist[i].bet
     return highestbet
 
+# checks if the player is on the current bet if not promts user to correct
+def match_bet(playerhands: list[user], player: user):
+
+    # player status codes [0 = ready to play, 1 = all in, 3 = fold]
+    currentbet = get_highest_bet(playerhands)
+    
+    # if player does not meet the current bet, promts user to correct
+    if player.bet != currentbet:
+        # if the player has enough to meet the current bet allows the player to choose how much to bet
+        if (player.balance + player.bet) >= currentbet:
+            print(f"|{player.name}|You need to match to the current bet of {currentbet}")
+            betadd = int(input(f"|bet:{player.bet}|bal:{player.balance}|How much would you like to add to your bet? "))
+            while (player.bet + betadd) < currentbet:
+                print(f"|{player.name}|You need to match to the current bet of {currentbet}")
+                betadd = int(input(f"|bet:{player.bet}|bal:{player.balance}|How much would you like to add to your bet? "))
+            player.bet += betadd
+            player.balance -= betadd
+
+        # if the player does not have enough to meet the current bet, gets the user to either go all in or fold
+        else:
+            print(f"|{player.name}|you dont have enough to match the bet would you like to go all in or fold?")
+            print("type 'A' for all in or type 'F' for fold")
+            response = input().upper()
+            while response not in ['A','F']:
+                print(response)
+                response = input().upper()
+            # if player chooses all in, dumps balance into bet and changes status to 1(all in)
+            if response == 'A':
+                player.bet += player.balance
+                player.balance = 0
+                player.status = 1
+            # if player chooses fold, changes status to 3(fold)
+            elif response == 'F':
+                playerhands[player]["status"] = 3
+    return playerhands
+
 
 if __name__ == "__main__":
     deck = shuffle(config.gamedeck)
@@ -85,3 +121,5 @@ if __name__ == "__main__":
         # players turn to add bets
     for i in range(len(playerlist)):
         playerlist = add_bet(playerlist, playerlist[i])
+    for i in range(len(playerlist)):
+        playerlist = match_bet(playerlist, playerlist[i])
