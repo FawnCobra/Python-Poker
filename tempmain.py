@@ -46,6 +46,35 @@ def card_deal(player, cardamnt, deck):
     # returns the new deck of cards since modified, returns the player object with new cards
     return deck, player
 
+# promts the player to bet
+def add_bet(playerhands, player):
+    print(f"|current highest bet is {get_highest_bet(playerhands)}|")
+    betamnt = int(input(f"{player} how much would you like to bet? "))
+    # keeps person in loop till bet ammount is both higher than the minumum bet and lower than their balance
+    while (betamnt < config.minbet) or (betamnt >= (playerhands[player]["balance"] + 1)):
+
+        # checks if bet is lower than min bet
+        if betamnt < config.minbet:
+            print("bet needs a min of 10")
+            betamnt = int(input(f"{player} how much would you like to bet? "))
+        # checks if bet is higher than balance
+        if betamnt >= (playerhands[player]["balance"] + 1):
+            print("bet needs to be less than your bal")
+            betamnt = int(input(f"{player} how much would you like to bet? "))
+    
+    # when conditons are met the balance and bet will be adjusted accordingly
+    playerhands[player]["bet"] = playerhands[player]["bet"] + betamnt
+    playerhands[player]["balance"] = playerhands[player]["balance"] - betamnt
+    return playerhands
+
+# returns a int of the current highest bet
+def get_highest_bet(playerlist: list[user]):
+    highestbet = 0
+    for i in range(len(playerlist)):
+        if playerlist[i].bet >= highestbet:
+            highestbet = playerlist[i].bet
+            print(highestbet)
+    return highestbet
 
 
 if __name__ == "__main__":
@@ -54,3 +83,6 @@ if __name__ == "__main__":
     for i in range(len(playerlist)):
         deck, playerlist[i] = card_deal(playerlist[i], 2, deck)
     
+        # players turn to add bets
+    for i in range(len(playerlist)):
+        playerhands = add_bet(playerhands, player)
