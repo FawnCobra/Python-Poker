@@ -56,7 +56,6 @@ def get_highest_bet(playerlist: list[User]) -> int:
 
 
 def bet_round(playerlist: list[User]) -> list[User]:
-    
     betlist = []
     currentbet = get_highest_bet(playerlist)
     for _ in playerlist:
@@ -65,7 +64,6 @@ def bet_round(playerlist: list[User]) -> list[User]:
         for _ in playerlist:
             betlist.append(_.bet)
         for player in playerlist:
-            debug.display_table(playerlist)
             currentbet = get_highest_bet(playerlist)
             if player.status != 1 or 3:
                 if player.bet == currentbet:
@@ -123,5 +121,4 @@ if __name__ == "__main__":
     
         # players turn to add bets
     playerlist = bet_round(playerlist)
-    debug.display_table(playerlist)
     
