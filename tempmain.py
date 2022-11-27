@@ -2,7 +2,7 @@ import random
 import config
 import easytable as debug
 
-class user:
+class User:
     def __init__(self, name: str, cards: list[str], status: int, balance: int, bet: int = 0):
         self.name = name
         self.cards = cards
@@ -35,81 +35,83 @@ def newtable():
         amount = "2"
     playerlist = []
     for x in range(int(amount)):
-        playerlist.append(user(f'player{x}', [], 0, 50, 0))
+        playerlist.append(User(f'player{x}', [], 0, 50, 0))
     return playerlist
 
 # deals any specified amount of cards to the player from the top of the deck and removes it
-def card_deal(player:user, cardamnt:int, deck:list[str]):
+def card_deal(player:User, cardamnt:int, deck:list[str]):
     temp = deck[0:cardamnt]
     del deck[0:cardamnt]
     player.cards += temp
     # returns the new deck of cards since modified, returns the player object with new cards
     return deck, player
 
-# promts the player to bet
-def add_bet(playerlist: list[user], player:user):
-    print(f"|current highest bet is {get_highest_bet(playerlist)}|")
-    betamount = int(input(f"{player.name} how much would you like to bet? "))
-    # keeps person in loop till bet ammount is both higher than the minumum bet and lower than their balance
-    while (betamount < config.minbet) or (betamount >= (player.balance + 1)):
-
-        # checks if bet is lower than min bet
-        if betamount < config.minbet:
-            print("bet needs a min of 10")
-            betamount = int(input(f"{player.name} how much would you like to bet? "))
-        # checks if bet is higher than balance
-        if betamount >= (player.balance + 1):
-            print("bet needs to be less than your bal")
-            betamount = int(input(f"{player.name} how much would you like to bet? "))
-    
-    # when conditons are met the balance and bet will be adjusted accordingly
-    player.bet += betamount
-    player.balance -= betamount
-    return playerlist
-
 # returns a int of the current highest bet
-def get_highest_bet(playerlist: list[user]):
+def get_highest_bet(playerlist: list[User]) -> int:
     highestbet = 0
     for i in range(len(playerlist)):
         if playerlist[i].bet >= highestbet:
             highestbet = playerlist[i].bet
     return highestbet
 
-# checks if the player is on the current bet if not promts user to correct
-def match_bet(playerhands: list[user], player: user):
 
-    # player status codes [0 = ready to play, 1 = all in, 3 = fold]
-    currentbet = get_highest_bet(playerhands)
+def bet_round(playerlist: list[User]) -> list[User]:
     
-    # if player does not meet the current bet, promts user to correct
-    if player.bet != currentbet:
-        # if the player has enough to meet the current bet allows the player to choose how much to bet
-        if (player.balance + player.bet) >= currentbet:
-            print(f"|{player.name}|You need to match to the current bet of {currentbet}")
-            betadd = int(input(f"|bet:{player.bet}|bal:{player.balance}|How much would you like to add to your bet? "))
-            while (player.bet + betadd) < currentbet:
-                print(f"|{player.name}|You need to match to the current bet of {currentbet}")
-                betadd = int(input(f"|bet:{player.bet}|bal:{player.balance}|How much would you like to add to your bet? "))
-            player.bet += betadd
-            player.balance -= betadd
+    betlist = []
+    currentbet = get_highest_bet(playerlist)
+    for _ in playerlist:
+        betlist.append(_.bet)
+    while all(elem == betlist[0] for elem in betlist) == False or currentbet == 0:
+        for _ in playerlist:
+            betlist.append(_.bet)
+        for player in playerlist:
+            debug.display_table(playerlist)
+            currentbet = get_highest_bet(playerlist)
+            if player.status != 1 or 3:
+                if player.bet == currentbet:
+                    print(f'|{player.name}|current bet:{currentbet}| you currently make the current bet would you like to add to your bet, fold')
+                    print("type 'A' for add or type 'F' for fold")
+                    response = input().upper()
+                    while response not in ['A','F']:
+                        response = input().upper()
+                    if response == 'A':
+                        betamount = int(input(f'|{player.name}|bal:{player.balance}|how much would you like to add to your bet? '))
+                        while (betamount < config.minbet) or (betamount >= (player.balance + 1)):
+                            if betamount < config.minbet:
+                                print("bet needs a min of 10")
+                                betamount = int(input(f"{player.name} how much would you like to bet? "))
 
-        # if the player does not have enough to meet the current bet, gets the user to either go all in or fold
-        else:
-            print(f"|{player.name}|you dont have enough to match the bet would you like to go all in or fold?")
-            print("type 'A' for all in or type 'F' for fold")
-            response = input().upper()
-            while response not in ['A','F']:
-                print(response)
-                response = input().upper()
-            # if player chooses all in, dumps balance into bet and changes status to 1(all in)
-            if response == 'A':
-                player.bet += player.balance
-                player.balance = 0
-                player.status = 1
-            # if player chooses fold, changes status to 3(fold)
-            elif response == 'F':
-                playerhands[player]["status"] = 3
-    return playerhands
+                            # checks if bet is higher than balance
+                            if betamount >= (player.balance + 1):
+                                print("bet needs to be less than your bal")
+                                betamount = int(input(f"{player.name} how much would you like to bet? "))
+
+                        player.bet += betamount
+                        player.balance -= betamount
+                    elif response == 'F':
+                        player.status = 3
+                elif (player.balance + player.bet) >= currentbet:
+                    print(f"|{player.name}|you dont have enough to match the bet would you like to go all in or fold? ")
+                    print("type 'A' for all in or type 'F' for fold")
+                    response = input().upper()
+                    while response not in ['A','F']:
+                        print(response)
+                        response = input().upper()
+                    # if player chooses all in, dumps balance into bet and changes status to 1(all in)
+                    if response == 'A':
+                        player.bet += player.balance
+                        player.balance = 0
+                        player.status = 1
+                    # if player chooses fold, changes status to 3(fold)
+                    elif response == 'F':
+                        player.status = 3
+            elif player.status == 1:
+                print(f"|{player.name}| You are all. Would you like to fold? ")
+                response = input("'Y' for yes or 'N' no")
+                while response not in ['Y','N']:
+                    response = input().upper()
+                if response == 'Y':
+                    player.status = 3
 
 
 if __name__ == "__main__":
@@ -118,8 +120,8 @@ if __name__ == "__main__":
     for i in range(len(playerlist)):
         deck, playerlist[i] = card_deal(playerlist[i], 2, deck)
     
+    
         # players turn to add bets
-    for i in range(len(playerlist)):
-        playerlist = add_bet(playerlist, playerlist[i])
-    for i in range(len(playerlist)):
-        playerlist = match_bet(playerlist, playerlist[i])
+    playerlist = bet_round(playerlist)
+    debug.display_table(playerlist)
+    
