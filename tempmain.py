@@ -112,6 +112,17 @@ def bet_round(playerlist: list[User]) -> list[User]:
                     player.status = 3
 
 
+def deal_table(amount, deck, table=None):
+    cards = deck[0:amount]
+    del deck[0:amount]
+    if table == None:
+        return cards, deck
+    else:
+        for card in cards:
+            table.append(card)
+        return table, deck
+
+
 if __name__ == "__main__":
     deck = shuffle(config.gamedeck)
     playerlist = newtable()
